@@ -1,4 +1,4 @@
-# Security Monitoring Sandbox (OpenSearch)
+# Security Monitoring Tool (OpenSearch)
 
 A local, throwaway sandbox for learning and building a multi-source security
 monitoring pipeline: log ingestion → normalization → rule-based detection →
