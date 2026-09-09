@@ -1,0 +1,191 @@
+# Data Prepper pipelines: one per source, each normalizing genuinely
+# different raw field names into the shared ECS-style schema documented in
+# docs/DATA_SCHEMA.md, then writing to the network-events-* index pattern.
+# GeoIP enrichment adds source.geo.* fields for map visualization.
+#
+# Pipeline processing flow:
+#   1. file source reads JSON lines → wraps each in a "message" field
+#   2. parse_json extracts message into top-level fields
+#   3. date processor normalizes timestamps
+#   4. add_entries/rename_keys normalize to ECS schema
+#   5. geoip enriches source.ip with geo coordinates
+#   6. sink writes to OpenSearch
+#
+# Note: parse_json is required because Data Prepper 2.16's file source with
+# format: "json" places the raw JSON line into a "message" key, not into
+# top-level fields directly.
+
+# ─────────────────────────────────────────────────────────────────────────
+# 1. FIREWALL
+# ─────────────────────────────────────────────────────────────────────────
+firewall-pipeline:
+  source:
+    file:
+      path: "/usr/share/data-prepper/logs/firewall.log"
+      record_type: "event"
+      format: "json"
+      tail: true
+      start_position: "end"
+  processor:
+    - parse_json:
+        source: "message"
+    - date:
+        match:
+          - key: "timestamp"
+            patterns: ["yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"]
+        destination: "@timestamp"
+    - add_entries:
+        entries:
+          - key: "event.dataset"
+            value: "firewall"
+          - key: "event.category"
+            value: "network"
+          - key: "log.source.type"
+            value: "firewall"
+    - rename_keys:
+        entries:
+          - from_key: "src_ip"
+            to_key: "source.ip"
+          - from_key: "src_port"
+            to_key: "source.port"
+          - from_key: "dst_ip"
+            to_key: "destination.ip"
+          - from_key: "dst_port"
+            to_key: "destination.port"
+          - from_key: "bytes"
+            to_key: "network.bytes"
+          - from_key: "protocol"
+            to_key: "network.protocol"
+          - from_key: "action"
+            to_key: "event.action"
+    - delete_entries:
+        with_keys: ["timestamp", "message"]
+    - geoip:
+        entries:
+          - source: "source.ip"
+            target: "source.geo"
+            include_fields: ["city_name", "country_name", "country_iso_code", "location", "latitude", "longitude"]
+  sink:
+    - opensearch:
+        hosts: ["https://opensearch:9200"]
+        username: "admin"
+        password: "Sbx-Monitor#2026!"
+        insecure: true
+        index: "network-events-firewall-%{yyyy.MM.dd}"
+        template_type: "index-template"
+
+# ─────────────────────────────────────────────────────────────────────────
+# 2. CLOUD (VPC-flow-log style)
+# ─────────────────────────────────────────────────────────────────────────
+cloud-pipeline:
+  source:
+    file:
+      path: "/usr/share/data-prepper/logs/cloud.log"
+      record_type: "event"
+      format: "json"
+      tail: true
+      start_position: "end"
+  processor:
+    - parse_json:
+        source: "message"
+    - date:
+        match:
+          - key: "eventTime"
+            patterns: ["yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"]
+        destination: "@timestamp"
+    - add_entries:
+        entries:
+          - key: "event.dataset"
+            value: "cloud"
+          - key: "event.category"
+            value: "network"
+          - key: "log.source.type"
+            value: "cloud"
+    - rename_keys:
+        entries:
+          - from_key: "sourceIPAddress"
+            to_key: "source.ip"
+          - from_key: "sourcePort"
+            to_key: "source.port"
+          - from_key: "destinationIPAddress"
+            to_key: "destination.ip"
+          - from_key: "destinationPort"
+            to_key: "destination.port"
+          - from_key: "bytesTransferred"
+            to_key: "network.bytes"
+          - from_key: "protocolName"
+            to_key: "network.protocol"
+          - from_key: "actionTaken"
+            to_key: "event.action"
+    - delete_entries:
+        with_keys: ["eventTime", "message"]
+    - geoip:
+        entries:
+          - source: "source.ip"
+            target: "source.geo"
+            include_fields: ["city_name", "country_name", "country_iso_code", "location", "latitude", "longitude"]
+  sink:
+    - opensearch:
+        hosts: ["https://opensearch:9200"]
+        username: "admin"
+        password: "Sbx-Monitor#2026!"
+        insecure: true
+        index: "network-events-cloud-%{yyyy.MM.dd}"
+        template_type: "index-template"
+
+# ─────────────────────────────────────────────────────────────────────────
+# 3. APPLICATION
+# ─────────────────────────────────────────────────────────────────────────
+app-pipeline:
+  source:
+    file:
+      path: "/usr/share/data-prepper/logs/app.log"
+      record_type: "event"
+      format: "json"
+      tail: true
+      start_position: "end"
+  processor:
+    - parse_json:
+        source: "message"
+    - date:
+        match:
+          - key: "time"
+            patterns: ["yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"]
+        destination: "@timestamp"
+    - add_entries:
+        entries:
+          - key: "event.dataset"
+            value: "application"
+          - key: "event.category"
+            value: "web"
+          - key: "log.source.type"
+            value: "application"
+    - rename_keys:
+        entries:
+          - from_key: "client_ip"
+            to_key: "source.ip"
+          - from_key: "method"
+            to_key: "http.request.method"
+          - from_key: "path"
+            to_key: "url.path"
+          - from_key: "status"
+            to_key: "http.response.status_code"
+          - from_key: "response_bytes"
+            to_key: "network.bytes"
+          - from_key: "latency_ms"
+            to_key: "event.duration_ms"
+    - delete_entries:
+        with_keys: ["time", "message"]
+    - geoip:
+        entries:
+          - source: "source.ip"
+            target: "source.geo"
+            include_fields: ["city_name", "country_name", "country_iso_code", "location", "latitude", "longitude"]
+  sink:
+    - opensearch:
+        hosts: ["https://opensearch:9200"]
+        username: "admin"
+        password: "Sbx-Monitor#2026!"
+        insecure: true
+        index: "network-events-app-%{yyyy.MM.dd}"
+        template_type: "index-template"

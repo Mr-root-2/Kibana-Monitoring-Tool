@@ -1,0 +1,18 @@
+# Generated log output
+log-generator/output/*.log
+# Data Prepper writes its own internal rotated logs into this same mounted
+# folder (it's data-prepper's working directory inside the container) - not
+# something we generate, safe to ignore.
+log-generator/output/data-prepper.log*
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+
+# Local env (contains sandbox credentials - not real secrets, but keep out of history anyway)
+.env
+
+# OS
+.DS_Store

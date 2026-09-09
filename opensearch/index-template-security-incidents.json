@@ -1,0 +1,21 @@
+{
+  "index_patterns": ["security-incidents*"],
+  "template": {
+    "settings": {
+      "number_of_shards": 1,
+      "number_of_replicas": 0
+    },
+    "mappings": {
+      "properties": {
+        "@timestamp":  { "type": "date" },
+        "type":        { "type": "keyword" },
+        "target":      { "type": "keyword" },
+        "confidence":  { "type": "keyword" },
+        "evidence":    { "type": "text" },
+        "finding_count": { "type": "integer" },
+        "finding_types": { "type": "keyword" }
+      }
+    }
+  },
+  "priority": 100
+}

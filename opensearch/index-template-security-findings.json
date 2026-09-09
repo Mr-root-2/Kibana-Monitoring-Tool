@@ -1,0 +1,38 @@
+{
+  "index_patterns": ["security-findings*"],
+  "template": {
+    "settings": {
+      "number_of_shards": 1,
+      "number_of_replicas": 0
+    },
+    "mappings": {
+      "properties": {
+        "@timestamp":            { "type": "date" },
+        "type":                  { "type": "keyword" },
+        "source_ip":             { "type": "ip" },
+        "target_ip":             { "type": "ip" },
+        "target_path":           { "type": "keyword" },
+        "confidence":            { "type": "keyword" },
+        "window_minutes":        { "type": "integer" },
+        "distinct_ports":        { "type": "integer" },
+        "distinct_paths":        { "type": "integer" },
+        "failed_login_count":    { "type": "integer" },
+        "error_ratio":           { "type": "float" },
+        "current_rate_per_min":  { "type": "float" },
+        "baseline_rate_per_min": { "type": "float" },
+        "unique_source_ips":     { "type": "integer" },
+        "evidence":              { "type": "text" },
+        "ddos_subtype":          { "type": "keyword" },
+        "total_events":          { "type": "integer" },
+        "total_attempts":        { "type": "integer" },
+        "failure_rate":          { "type": "float" },
+        "sqli_request_count":    { "type": "integer" },
+        "sample_payloads":       { "type": "keyword" },
+        "query_count":           { "type": "integer" },
+        "avg_bytes_per_query":   { "type": "float" },
+        "destination_ip_count":  { "type": "integer" }
+      }
+    }
+  },
+  "priority": 100
+}

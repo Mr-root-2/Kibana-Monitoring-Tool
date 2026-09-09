@@ -1,0 +1,12 @@
+ssl: false
+
+# GeoIP enrichment: the geoip processor in each pipeline uses this service.
+# Data Prepper 2.16.0 ships with bundled MaxMind GeoLite2 databases at:
+#   /usr/share/data-prepper/data/geoip/{blue,green}_database/geolite2-{city,country,asn}.mmdb
+# No license key is needed for the bundled databases. Add a license_key here
+# only if you want automatic refresh from MaxMind's CDN.
+extensions:
+  geoip_service:
+    maxmind:
+      cache_count: 4096
+      database_refresh_interval: P7D
