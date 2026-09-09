@@ -50,6 +50,30 @@ Findings are correlated into **incidents** by shared target, then persisted to `
 
 ---
 
+## Dashboard
+
+The **Security Monitoring – Investigation Dashboard** ties everything together in OpenSearch Dashboards — from high-level counts down to individual attacker IPs and correlated incidents.
+
+**Overview** — total network events, security findings, incidents, and unique source IPs, with a GeoIP attack-source map and top source countries.
+
+![Dashboard overview: KPIs, attack-source geo map, top source countries](docs/screenshots/01-overview.png)
+
+**Traffic** — traffic volume over time by source, protocol split (TCP/UDP), top destination ports, and bandwidth over time.
+
+![Traffic panels: volume over time, protocol donut, top ports, bandwidth](docs/screenshots/02-traffic.png)
+
+**Findings** — HTTP response codes, top accessed endpoints, average latency, and findings broken down by attack type over time.
+
+![Findings panels: HTTP status codes, top endpoints, latency, findings by attack type](docs/screenshots/03-findings.png)
+
+**Incidents** — top attacker source IPs, correlated incidents by target and confidence, and the top source / targeted destination IPs by traffic volume.
+
+![Incident tables: top attacker IPs, correlated incidents, top source and destination IPs](docs/screenshots/04-incidents.png)
+
+Build it yourself with `dashboards/create_dashboard.sh` (see [Quick start](#5-view-the-dashboard)).
+
+---
+
 ## Quick start
 
 ### 1. Start the stack
