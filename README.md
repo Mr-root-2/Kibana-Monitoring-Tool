@@ -1,5 +1,10 @@
 # Security Monitoring Sandbox (OpenSearch)
 
+> 🔍 Self-hosted security monitoring sandbox on OpenSearch: multi-source log
+> ingestion → ECS normalization (Data Prepper) → rule-based detection (port
+> scan, brute force, SQLi, DNS tunneling, DDoS + more) → incident correlation
+> → dashboard. Docker + Python.
+
 A local, throwaway sandbox for learning and building a multi-source security
 monitoring pipeline: log ingestion → normalization → rule-based detection →
 DDoS detection → correlation → investigation dashboard.
