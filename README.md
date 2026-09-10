@@ -1,4 +1,4 @@
-# Security Monitoring Sandbox
+# Application Security Monitoring Sandbox
 
 **A self-hosted, multi-source security monitoring pipeline on OpenSearch — from raw log ingestion to attack detection, correlation, and an investigation dashboard.**
 
